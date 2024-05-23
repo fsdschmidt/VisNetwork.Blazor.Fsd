@@ -5,6 +5,7 @@ import {
     Network, NetworkEvents,
     SelectionOptions, IdType, Options, Data, parseDOTNetwork
 } from "vis-network/standalone";
+import {Edge, Position} from "vis-network/declarations/network/Network";
 
 type DotNetObjectReference = any;
 
@@ -226,4 +227,79 @@ export function populateDotNetwork(element: HTMLElement, dot: string): any {
     //console.log('VisNetwork.Blazor: [parseDotNetwork json]', json);
     //return json;
     //return parsedData;
+}
+
+// Modification
+
+export function addNode(element: HTMLElement, node: Node) {
+    console.log('VisNetwork.Blazor: [addNode] ', node);
+    const currentNetwork: Network = getNetworkById(element.id);
+    
+    // @ts-ignore
+    currentNetwork.body.data.nodes.getDataSet().add(node);
+}
+
+export function addEdge(element: HTMLElement, edge: Edge) {
+    console.log('VisNetwork.Blazor: [addEdge] ', edge);
+    const currentNetwork: Network = getNetworkById(element.id);
+
+    // @ts-ignore
+    currentNetwork.body.data.edges.getDataSet().add(edge);
+}
+
+export function updateNode(element: HTMLElement, node: Node) {
+    console.log('VisNetwork.Blazor: [updateNode] ', node);
+    const currentNetwork: Network = getNetworkById(element.id);
+
+    // @ts-ignore
+    currentNetwork.body.data.nodes.getDataSet().update(node);
+}
+
+export function updateNodes(element: HTMLElement, nodes: Node[]) {
+    console.log('VisNetwork.Blazor: [updateNode] ', nodes);
+    const currentNetwork: Network = getNetworkById(element.id);
+
+    // @ts-ignore
+    currentNetwork.body.data.nodes.getDataSet().update(nodes);
+}
+
+export function updateEdge(element: HTMLElement, edge: Edge) {
+    console.log('VisNetwork.Blazor: [updateEdge] ', edge);
+    const currentNetwork: Network = getNetworkById(element.id);
+
+    // @ts-ignore
+    currentNetwork.body.data.edges.getDataSet().update(edge);
+}
+
+export function updateEdges(element: HTMLElement, edges: Edge[]) {
+    console.log('VisNetwork.Blazor: [updateEdge] ', edges);
+    const currentNetwork: Network = getNetworkById(element.id);
+
+    // @ts-ignore
+    currentNetwork.body.data.edges.getDataSet().update(edges);
+}
+
+export function removeNode(element: HTMLElement, node: Node) {
+    console.log('VisNetwork.Blazor: [removeNode] ', node);
+    const currentNetwork: Network = getNetworkById(element.id);
+    
+    // @ts-ignore
+    currentNetwork.body.data.nodes.getDataSet().remove(node);
+}
+
+export function removeEdge(element: HTMLElement, edge: Edge) {
+    console.log('VisNetwork.Blazor: [removeEdge] ', edge);
+    const currentNetwork: Network = getNetworkById(element.id);
+
+    // @ts-ignore
+    currentNetwork.body.data.edges.getDataSet().remove(edge);
+}
+
+// Information
+
+export function getNodePositions(element: HTMLElement, nodeIds: string[]) : { [nodeId: string]: Position } {
+    console.log('VisNetwork.Blazor: [getNodePositions] ', nodeIds);
+    const currentNetwork: Network = getNetworkById(element.id);
+
+    return currentNetwork.getPositions(nodeIds);
 }

@@ -1,4 +1,6 @@
-﻿namespace VisNetwork.Blazor.Models;
+﻿using System;
+
+namespace VisNetwork.Blazor.Models;
 
 public class NodeOption {
     /// <summary>
@@ -42,9 +44,8 @@ public class NodeOption {
 
     /// <summary>
     /// Defines the font of the label.
-    /// Note: JS lib supports both string and object.
     /// </summary>
-    public string? Font { get; set; }
+    public NodeFontOption? Font { get; set; }
 
     /// <summary>
     /// When not null, the node will belong to the defined group. 
@@ -139,10 +140,8 @@ public class NodeOption {
     /// NOTE: JS lib support custom and create own using ctxRender option.
     /// </summary>
     public string? Shape { get; set; }
-
-#pragma warning disable S125 // Sections of code should not be commented out
-    //public NodeShapePropertiesOption? ShapeProperties { get; set; }
-#pragma warning restore S125 // Sections of code should not be commented out
+    
+    public NodeShapePropertiesOption? ShapeProperties { get; set; }
 
     /// <summary>
     /// The size is used to determine the size of node shapes that do not have the label inside of them. 
@@ -427,4 +426,16 @@ public class NodeScalingLabelOptions {
     /// </summary>
     /// <value></value>
     public int? DrawThreshold { get; set; }
+}
+
+public class NodeShapePropertiesOption
+{
+    public int[]? BorderDashes { get; set; }
+}
+
+public class NodeFontOption 
+{
+    public string? Multi { get; set; }
+    public string? Face { get; set; }
+    public int Size { get; set; }
 }

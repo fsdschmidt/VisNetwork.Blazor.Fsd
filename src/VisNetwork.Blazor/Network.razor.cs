@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using VisNetwork.Blazor.Models;
@@ -9,7 +10,7 @@ using VisNetwork.Blazor.Models;
 #nullable disable
 namespace VisNetwork.Blazor;
 
-public partial class Network : IAsyncDisposable
+public partial class Network : IAsyncDisposable, INetwork
 {
     private readonly DotNetObjectReference<Network> thisReference;
     private ElementReference element;
@@ -372,5 +373,80 @@ public partial class Network : IAsyncDisposable
 
     public async Task ParseDOTNetwork(string dotString) =>
         await JS.ParseDOTNetwork(element, dotString);
+    
+    // Manipulation
+    public async Task AddNode(Node node)
+    {
+        await JS.AddNode(element, thisReference, node);
+        Data.Nodes = Data.Nodes.Append(node).ToList();
+    }
+
+    public async Task AddEdge(Edge edge)
+    {
+        await JS.AddEdge(element, thisReference, edge);
+        Data.Edges = Data.Edges.Append(edge).ToList();
+    }
+
+    public async Task UpdateNode(Node node)
+    {
+        await JS.UpdateNode(element, thisReference, node);
+        
+        var nodesList = Data.Nodes.ToList();
+        nodesList.RemoveAll(n => n.Id == node.Id);
+        nodesList.Add(node);
+        
+        Data.Nodes = nodesList;
+    }
+
+    public async Task UpdateNode(Node[] nodes)
+    {
+        await JS.UpdateNode(element, thisReference, nodes);
+            
+        var nodesList = Data.Nodes.ToList();
+        var newNodeIds = nodes.Select(newNode => newNode.Id);
+        nodesList.RemoveAll(existingNode => newNodeIds.Any(id => existingNode.Id == id));
+        nodesList.AddRange(nodes);
+        
+        Data.Nodes = nodesList;
+    }
+
+    public async Task UpdateEdge(Edge edge)
+    {
+        await JS.UpdateEdge(element, thisReference, edge);
+        
+        var edgeList = Data.Edges.ToList();
+        edgeList.RemoveAll(e => e.Id == edge.Id);
+        edgeList.Add(edge);
+        
+        Data.Edges = edgeList;
+    }
+
+    public async Task UpdateEdge(Edge[] edges)
+    {
+        await JS.UpdateEdge(element, thisReference, edges);
+        
+        var edgeList = Data.Edges.ToList();
+        var newEdgeIds = edges.Select(newEdge => newEdge.Id);
+        edgeList.RemoveAll(existingEdge => newEdgeIds.Any(id => existingEdge.Id == id));
+        edgeList.AddRange(edges);
+        
+        Data.Edges = edgeList;
+    }
+
+    public async Task RemoveNode(Node node)
+    {
+        await JS.RemoveNode(element, thisReference, node);
+        Data.Nodes = Data.Nodes.Where(n => n.Id != node.Id).ToList();
+    }
+
+    public async Task RemoveEdge(Edge edge)
+    {
+        await JS.RemoveEdge(element, thisReference, edge);
+        Data.Edges = Data.Edges.Where(e => e.Id != edge.Id).ToList();
+    }
+
+    // Information
+    public async Task<NodePositions> GetNodePositions(string[] nodeIds) =>
+        await JS.GetNodePositions(element, thisReference, nodeIds);
 }
 #nullable enable
