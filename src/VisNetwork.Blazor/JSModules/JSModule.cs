@@ -80,16 +80,16 @@ internal partial class JSModule : IJSModule
         InvokeAsync<NodeEdgeComposite>("addEdge", element, SerializeIgnoreNull(edge));
     
     public ValueTask<NodeEdgeComposite> UpdateNode(ElementReference element, DotNetObjectReference<Network> component, Node node) => 
-        InvokeAsync<NodeEdgeComposite>("updateNode", element, SerializeIgnoreNull(node));
+        InvokeAsync<NodeEdgeComposite>("updateNode", element, Serialize(node));
     
     public ValueTask<NodeEdgeComposite> UpdateNode(ElementReference element, DotNetObjectReference<Network> component, Node[] nodes) => 
-        InvokeAsync<NodeEdgeComposite>("updateNodes", element, SerializeIgnoreNull(nodes));
+        InvokeAsync<NodeEdgeComposite>("updateNodes", element, Serialize(nodes));
     
     public ValueTask<NodeEdgeComposite> UpdateEdge(ElementReference element, DotNetObjectReference<Network> component, Edge edge) => 
-        InvokeAsync<NodeEdgeComposite>("updateEdge", element, SerializeIgnoreNull(edge));
+        InvokeAsync<NodeEdgeComposite>("updateEdge", element, Serialize(edge));
     
     public ValueTask<NodeEdgeComposite> UpdateEdge(ElementReference element, DotNetObjectReference<Network> component, Edge[] edges) => 
-        InvokeAsync<NodeEdgeComposite>("updateEdges", element, SerializeIgnoreNull(edges));
+        InvokeAsync<NodeEdgeComposite>("updateEdges", element, Serialize(edges));
     
     public ValueTask<NodeEdgeComposite> RemoveNode(ElementReference element, DotNetObjectReference<Network> component, Node node) => 
         InvokeAsync<NodeEdgeComposite>("removeNode", element, SerializeIgnoreNull(node));
@@ -107,15 +107,26 @@ internal partial class JSModule : IJSModule
         };
     }
 
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    private static readonly JsonSerializerOptions JsonSerializerOptionsWithoutNull = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+    
+    private static readonly JsonSerializerOptions JsonSerializerOptionsWithNull = new()
+    {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     private static JsonElement SerializeIgnoreNull<T>(T instance)
     {
-        var instanceJson = JsonSerializer.Serialize(instance, JsonSerializerOptions);
+        var instanceJson = JsonSerializer.Serialize(instance, JsonSerializerOptionsWithoutNull);
+        return JsonSerializer.Deserialize<JsonElement>(instanceJson);
+    }
+
+    private static JsonElement Serialize<T>(T instance)
+    {
+        var instanceJson = JsonSerializer.Serialize(instance, JsonSerializerOptionsWithNull);
         return JsonSerializer.Deserialize<JsonElement>(instanceJson);
     }
 }
