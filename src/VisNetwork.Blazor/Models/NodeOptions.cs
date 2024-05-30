@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace VisNetwork.Blazor.Models;
 
@@ -154,6 +155,7 @@ public class NodeOption {
     /// 
     /// NOTE: JS lib the title can be an HTML element or a string containing plain text.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public string? Title { get; set; }
 
     /// <summary>

@@ -115,7 +115,8 @@ Edges:
         await network.UpdateNode(new[] {new Node
         {
             Id = nodeId,
-            Label = nodeLabel
+            Label = nodeLabel,
+            Scaling = new NodeScalingOptions()
         }});
     }
     

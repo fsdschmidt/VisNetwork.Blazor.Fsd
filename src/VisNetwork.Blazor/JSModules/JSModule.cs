@@ -80,16 +80,16 @@ internal partial class JSModule : IJSModule
         InvokeAsync<NodeEdgeComposite>("addEdge", element, SerializeIgnoreNull(edge));
     
     public ValueTask<NodeEdgeComposite> UpdateNode(ElementReference element, DotNetObjectReference<Network> component, Node node) => 
-        InvokeAsync<NodeEdgeComposite>("updateNode", element, Serialize(node));
+        InvokeAsync<NodeEdgeComposite>("updateNode", element, SerializeIgnoreNull(node));
     
     public ValueTask<NodeEdgeComposite> UpdateNode(ElementReference element, DotNetObjectReference<Network> component, Node[] nodes) => 
-        InvokeAsync<NodeEdgeComposite>("updateNodes", element, Serialize(nodes));
+        InvokeAsync<NodeEdgeComposite>("updateNodes", element, SerializeIgnoreNull(nodes));
     
     public ValueTask<NodeEdgeComposite> UpdateEdge(ElementReference element, DotNetObjectReference<Network> component, Edge edge) => 
-        InvokeAsync<NodeEdgeComposite>("updateEdge", element, Serialize(edge));
+        InvokeAsync<NodeEdgeComposite>("updateEdge", element, SerializeIgnoreNull(edge));
     
     public ValueTask<NodeEdgeComposite> UpdateEdge(ElementReference element, DotNetObjectReference<Network> component, Edge[] edges) => 
-        InvokeAsync<NodeEdgeComposite>("updateEdges", element, Serialize(edges));
+        InvokeAsync<NodeEdgeComposite>("updateEdges", element, SerializeIgnoreNull(edges));
     
     public ValueTask<NodeEdgeComposite> RemoveNode(ElementReference element, DotNetObjectReference<Network> component, Node node) => 
         InvokeAsync<NodeEdgeComposite>("removeNode", element, SerializeIgnoreNull(node));
@@ -112,21 +112,10 @@ internal partial class JSModule : IJSModule
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
-    
-    private static readonly JsonSerializerOptions JsonSerializerOptionsWithNull = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
 
     private static JsonElement SerializeIgnoreNull<T>(T instance)
     {
         var instanceJson = JsonSerializer.Serialize(instance, JsonSerializerOptionsWithoutNull);
-        return JsonSerializer.Deserialize<JsonElement>(instanceJson);
-    }
-
-    private static JsonElement Serialize<T>(T instance)
-    {
-        var instanceJson = JsonSerializer.Serialize(instance, JsonSerializerOptionsWithNull);
         return JsonSerializer.Deserialize<JsonElement>(instanceJson);
     }
 }
