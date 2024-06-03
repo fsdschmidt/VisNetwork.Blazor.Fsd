@@ -259,6 +259,7 @@ export function updateNode(element: HTMLElement, node: Node) {
 export function updateNodes(element: HTMLElement, nodes: Node[]) {
     console.log('VisNetwork.Blazor: [updateNode] ', nodes);
     const currentNetwork: Network = getNetworkById(element.id);
+    nodes.forEach(node => node.title = setTitle(node.title));
 
     // @ts-ignore
     currentNetwork.body.data.nodes.getDataSet().update(nodes);
