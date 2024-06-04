@@ -250,7 +250,7 @@ export function addEdge(element: HTMLElement, edge: Edge) {
 export function updateNode(element: HTMLElement, node: Node) {
     console.log('VisNetwork.Blazor: [updateNode] ', node);
     const currentNetwork: Network = getNetworkById(element.id);
-    node.title = setTitle(node.title);
+    trySetTitle(node);
 
     // @ts-ignore
     currentNetwork.body.data.nodes.getDataSet().update(node);
@@ -259,7 +259,7 @@ export function updateNode(element: HTMLElement, node: Node) {
 export function updateNodes(element: HTMLElement, nodes: Node[]) {
     console.log('VisNetwork.Blazor: [updateNode] ', nodes);
     const currentNetwork: Network = getNetworkById(element.id);
-    nodes.forEach(node => node.title = setTitle(node.title));
+    nodes.forEach(node => trySetTitle(node));
 
     // @ts-ignore
     currentNetwork.body.data.nodes.getDataSet().update(nodes);
@@ -311,4 +311,13 @@ function setTitle(innerHtml: any) : HTMLDivElement
     const container = document.createElement("div");
     container.innerHTML = innerHtml;
     return container;
+}
+
+function trySetTitle(node: Node)
+{
+    if (node.title == null) {
+        return;
+    }
+
+    node.title = setTitle(node.title);
 }
