@@ -5,7 +5,7 @@ import {
     Network, NetworkEvents,
     SelectionOptions, IdType, Options, Data, parseDOTNetwork
 } from "vis-network/standalone";
-import {Edge, Position} from "vis-network/declarations/network/Network";
+import {Edge, Node, Position} from "vis-network/declarations/network/Network";
 
 type DotNetObjectReference = any;
 
@@ -250,6 +250,7 @@ export function addEdge(element: HTMLElement, edge: Edge) {
 export function updateNode(element: HTMLElement, node: Node) {
     console.log('VisNetwork.Blazor: [updateNode] ', node);
     const currentNetwork: Network = getNetworkById(element.id);
+    trySetTitle(node);
 
     // @ts-ignore
     currentNetwork.body.data.nodes.getDataSet().update(node);
@@ -258,6 +259,7 @@ export function updateNode(element: HTMLElement, node: Node) {
 export function updateNodes(element: HTMLElement, nodes: Node[]) {
     console.log('VisNetwork.Blazor: [updateNode] ', nodes);
     const currentNetwork: Network = getNetworkById(element.id);
+    nodes.forEach(node => trySetTitle(node));
 
     // @ts-ignore
     currentNetwork.body.data.nodes.getDataSet().update(nodes);
@@ -302,4 +304,20 @@ export function getNodePositions(element: HTMLElement, nodeIds: string[]) : { [n
     const currentNetwork: Network = getNetworkById(element.id);
 
     return currentNetwork.getPositions(nodeIds);
+}
+
+function setTitle(innerHtml: any) : HTMLDivElement
+{
+    const container = document.createElement("div");
+    container.innerHTML = innerHtml;
+    return container;
+}
+
+function trySetTitle(node: Node)
+{
+    if (node.title == null) {
+        return;
+    }
+
+    node.title = setTitle(node.title);
 }
