@@ -5,7 +5,7 @@ import {
     Network, NetworkEvents,
     SelectionOptions, IdType, Options, Data, parseDOTNetwork
 } from "vis-network/standalone";
-import {Edge, Position} from "vis-network/declarations/network/Network";
+import {Edge, Node, Position} from "vis-network/declarations/network/Network";
 
 type DotNetObjectReference = any;
 
