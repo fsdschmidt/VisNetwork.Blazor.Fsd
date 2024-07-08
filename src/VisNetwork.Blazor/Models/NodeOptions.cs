@@ -435,6 +435,7 @@ public class NodeShapePropertiesOption
 
 public class NodeFontOption 
 {
+    public string? Color { get; set; }
     public string? Multi { get; set; }
     public string? Face { get; set; }
     public int Size { get; set; }

@@ -16,6 +16,17 @@
 </div>
 
 <div>
+    <button @onclick="RemoveNodeClick" aria-label="RemoveNode">Remove Node</button>
+    <button @onclick="RemoveEdgeClick" aria-label="Remove">Remove Edge</button>
+    <button @onclick="RemoveNodeAndEdgeClick" aria-label="RemoveNodeAndEdge">Remove Node and Edge</button>
+</div>
+
+<div>
+    <button @onclick="FsdSelectTestClick" aria-label="FsdSelectTest">FSD Select Test</button>
+    <button @onclick="FsdUnselectTestClick" aria-label="FsdSelectTest">FSD Unselect Test</button>
+</div>
+
+<div>
     Node Id: <input type="text" @bind="nodeId" @bind:event="oninput" />
     Node Label: <input type="text" @bind="nodeLabel" @bind:event="oninput" />
 </div>
@@ -27,7 +38,7 @@
 </div>
 
 <div>
-    <Network @ref="network" Id="my-id" Data="@data" class="vis-network-container" />
+    <Network @ref="network" Id="my-id" Data="@data" class="vis-network-container" Options="NetworkOptions" />
 </div>
 
 Nodes:
@@ -84,13 +95,41 @@ Edges:
     private string edgeId = "newEdge1";
     private string edgeFrom = "newNode1";
     private string edgeTo = "1";
+    private int edgeLength = 100;
+    
+    private NetworkOptions networkOptions = new NetworkOptions
+    {
+        Physics = new PhysicsOptions
+        {
+            Solver = "barnesHut",
+            BarnesHut = new BarnesHutOption
+            {
+                Damping = (decimal?)0.3,
+                AvoidOverlap = 0.1
+            },
+            Stabilization = new StabilizationOption
+            {
+                Enabled = false // with stabilization, graph needs some time for stabilization and rendering
+            },
+            HierarchicalRepulsion = new HierarchicalRepulsionOption
+            {
+                AvoidOverlap = 1.0,
+                NodeDistance = 100
+            }
+        },
+        Layout = new LayoutOptions
+        {
+        }
+    };
     
     private async Task AddNodeClick()
     {
         await network.AddNode(new Node
         {
             Id = nodeId,
-            Label = nodeLabel
+            Label = nodeLabel,
+            Shape = "circle",
+            Title = "blubb"
         });
     }
     
@@ -100,7 +139,8 @@ Edges:
         {
             Id = edgeId,
             From = edgeFrom,
-            To = edgeTo
+            To = edgeTo,
+            Length = edgeLength
         });
     }
     
@@ -115,7 +155,9 @@ Edges:
         await network.UpdateNode(new[] {new Node
         {
             Id = nodeId,
-            Label = nodeLabel
+            Label = nodeLabel,
+            Scaling = new NodeScalingOptions(),
+            Title = null
         }});
     }
     
@@ -125,7 +167,138 @@ Edges:
         {
             Id = edgeId,
             From = edgeFrom,
-            To = edgeTo
+            To = edgeTo,
+            Length = edgeLength
+        }});
+    }
+
+    private async Task RemoveNodeClick()
+    {
+        await network.RemoveNode(new Node
+        {
+            Id = nodeId
+        });
+    }
+
+    private async Task RemoveEdgeClick()
+    {
+        await network.RemoveEdge(new Edge
+        {
+            Id = edgeId
+        });
+    }
+
+    private async Task RemoveNodeAndEdgeClick()
+    {
+        await RemoveNodeClick();
+        await RemoveEdgeClick();
+    }
+
+    private async Task FsdSelectTestClick()
+    {
+        await network.SelectNodes(["1"]);
+        await network.UpdateNode(new Node
+        {
+            Id = "1",
+            Fixed = new NodeFixedOption()
+            {
+                X = true,
+                Y = true
+            }
+        });
+        await network.UpdateNode(new Node
+        {
+            Id = "2",
+            Fixed = new NodeFixedOption()
+            {
+                X = true,
+                Y = true
+            }
+        });
+        edgeLength = 20;
+        
+        nodeLabel = " +";
+        nodeId = "addChildButton";
+        edgeId = "1-plusChild";
+        edgeFrom = "addChildButton";
+        edgeTo = "1";
+        await AddNodeAndEdgeClick();
+        
+        await network.UpdateEdge(new Edge
+        {
+            Id = "1-2",
+            Hidden = true
+        });
+
+
+        var addParentButton = new Node
+        {
+            Id = "addParentButton",
+            Label = nodeLabel,
+            Fixed = new NodeFixedOption()
+            {
+                X = true,
+                Y = true
+            }
+        };
+        var positions = await network.GetNodePositions(new[] {"1", "2"});
+        if (positions.Positions.TryGetValue("1", out var position1) && positions.Positions.TryGetValue("2", out var position2))
+        {
+            addParentButton.X = position1.X + ((position2.X - position1.X) / 2) - 10;
+            addParentButton.Y = position1.Y + ((position2.Y - position1.Y) / 2) - 10;
+        }
+        await network.AddNode(addParentButton);
+        
+        edgeFrom = addParentButton.Id;
+        edgeTo = "1";
+        edgeId = "1-plusParent";
+        await AddEdgeClick();
+        edgeFrom = addParentButton.Id;
+        edgeTo = "2";
+        edgeId = "plusParent-2";
+        await AddEdgeClick();
+        
+        edgeLength = 100;
+    }
+
+    private async void FsdUnselectTestClick()
+    {
+        await network.UnselectAll();
+        edgeId = "1-plusChild";
+        await RemoveEdgeClick();
+        nodeId = "addChildButton";
+        await RemoveNodeClick();
+        
+        await network.UpdateEdge(new Edge
+        {
+            Id = "1-2",
+            Hidden = false
+        });
+        
+        edgeId = "1-plusParent";
+        await RemoveEdgeClick();
+        edgeId = "plusParent-2";
+        await RemoveEdgeClick();
+        nodeId = "addParentButton";
+        await RemoveNodeClick();
+        
+        await network.UpdateNode(new Node
+        {
+            Id = "1",
+            Fixed = new NodeFixedOption()
+            {
+                X = false,
+                Y = false
+            }
+        });
+        await network.UpdateNode(new Node
+        {
+            Id = "2",
+            Fixed = new NodeFixedOption()
+            {
+                X = false,
+                Y = false
+            }
         });
     }
 
@@ -136,7 +309,7 @@ Edges:
 
         nodes.Add(new Node("1", "Node 1", 1, "circle"));
         nodes.Add(new Node("2", "Node 2", 2, "ellipse"));
-        edges.Add(new Edge("1", "2") { Id = "1-2" });
+        edges.Add(new Edge("2", "1") { Id = "1-2" });
         nodes.Add(new Node("3", "Node 3", 4, "database"));
         edges.Add(new Edge("2", "3") { Id = "2-3" });
 
@@ -145,6 +318,11 @@ Edges:
                 Edges = edges,
                 Nodes = nodes
             };
+    }
+
+    private NetworkOptions NetworkOptions(Network network)
+    {
+        return networkOptions;
     }
 
 }
